@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'quiz_brain.dart';
 import 'question.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 QuizBrain quizBrain = QuizBrain();
 
@@ -37,7 +38,37 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
 
-  int questionNumber = 0;
+  // List<int> diemSo = []; // cai nay chua dung
+
+  void checkAnswer(bool userPickedAnswer) {
+    bool correctAnswer = quizBrain.getQuestionAnswer();
+    setState(() {
+      if (quizBrain.isFinished()) {
+        Alert(
+            context: context,
+            title: 'Finished!',
+            desc: 'You\'ve reached the end of the quiz!.')
+            .show();
+        quizBrain.resetQuestion();
+        scoreKeeper = [];
+        // diemSo = [];
+      } else {
+        if (correctAnswer == userPickedAnswer) {
+          scoreKeeper.add(Icon(
+            Icons.check,
+            color: Colors.green,
+          ));
+          // diemSo.add(1);
+        } else {
+          scoreKeeper.add(Icon(
+            Icons.close,
+            color: Colors.red,
+          ));
+        }
+        quizBrain.nextQuestion();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +82,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10),
             child: Center(
               child: Text(
-                quizBrain.questionBank[questionNumber].questionText,
+                quizBrain.getQuestionText(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -78,13 +109,7 @@ class _QuizPageState extends State<QuizPage> {
               ),
               onPressed: () {
                 //The user picked true.
-                bool correctAnswer =
-                    quizBrain.questionBank[questionNumber].questionAnswer;
-                if (correctAnswer == true) {
-                  print('Ban da chon dung dap an');
-                }else{
-                  print('Ban da chon sai dap an');
-                }
+                checkAnswer(true);
               },
             ),
           ),
@@ -97,7 +122,7 @@ class _QuizPageState extends State<QuizPage> {
                 textStyle: const TextStyle(fontSize: 20, color: Colors.white),
                 backgroundColor: Colors.red,
               ),
-              child:  Text(
+              child: Text(
                 'False',
                 style: TextStyle(
                   fontSize: 20.0,
@@ -106,28 +131,13 @@ class _QuizPageState extends State<QuizPage> {
               ),
               onPressed: () {
                 //The user picked false.
-                bool correctAnswer =
-                    quizBrain.questionBank[questionNumber].questionAnswer;
-                if (correctAnswer == false) {
-                  print('Ban da chon dung dap an');
-                }else{
-                  print('Ban da chon sai dap an');
-                }
+                checkAnswer(false);
               },
             ),
           ),
         ),
         Row(
-          children: [
-            Icon(
-              Icons.check,
-              color: Colors.green,
-            ),
-            Icon(
-              Icons.close,
-              color: Colors.red,
-            ),
-          ],
+          children: scoreKeeper,
         )
       ],
     );
